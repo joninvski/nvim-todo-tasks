@@ -13,7 +13,7 @@ A simple Neovim plugin for managing TODO tasks in markdown files.
 
 ```lua
 {
-  "jtrindade/nvim-todo-tasks",
+  "joninvski/nvim-todo-tasks",
   ft = "markdown",
   opts = {},
 }
