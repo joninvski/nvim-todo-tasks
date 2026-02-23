@@ -17,7 +17,7 @@ function M.new_task()
   local bufnr = vim.api.nvim_get_current_buf()
   local filetype = vim.bo[bufnr].filetype
 
-  if filetype ~= "markdown" then
+  if filetype ~= "markdown" and filetype ~= "markdown_todo" then
     vim.notify("TodoTasks: Only works in markdown files", vim.log.levels.WARN)
     return
   end
@@ -48,7 +48,7 @@ function M.complete_task()
   local bufnr = vim.api.nvim_get_current_buf()
   local filetype = vim.bo[bufnr].filetype
 
-  if filetype ~= "markdown" then
+  if filetype ~= "markdown" and filetype ~= "markdown_todo" then
     vim.notify("TodoTasks: Only works in markdown files", vim.log.levels.WARN)
     return
   end
@@ -84,7 +84,17 @@ function M.complete_task()
     return
   end
 
-  vim.api.nvim_buf_set_lines(bufnr, new_finished_row, new_finished_row, false, { completed_line })
+  -- Check if there's a blank line after the header
+  local next_line = vim.api.nvim_buf_get_lines(bufnr, new_finished_row, new_finished_row + 1, false)
+  local has_blank_line = #next_line > 0 and next_line[1] == ""
+
+  if has_blank_line then
+    -- Insert after the blank line
+    vim.api.nvim_buf_set_lines(bufnr, new_finished_row + 1, new_finished_row + 1, false, { completed_line })
+  else
+    -- Insert a blank line and then the task
+    vim.api.nvim_buf_set_lines(bufnr, new_finished_row, new_finished_row, false, { "", completed_line })
+  end
 
   local new_cursor_row = math.min(row, vim.api.nvim_buf_line_count(bufnr))
   vim.api.nvim_win_set_cursor(0, { new_cursor_row, 0 })
